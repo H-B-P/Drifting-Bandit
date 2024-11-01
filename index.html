@@ -1,0 +1,203 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>The Drifting (Ex-)Bandit</title>
+  
+  <style>
+        #dataContainer {
+            width: 400px;
+            height: 200px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+  </style>
+  
+</head>
+
+<body>
+  
+  Your goal is to end Day 60 with as much food stored as possible. Time, and your own actions, may affect the outcome of a forage. You consume 100 food at the end of each day.
+  <br>
+  <br>
+  <div id="Day">Day: 1</div>
+  <div id="Time">Time: 8:00</div>
+  <div id="Food">Food: 50</div>
+  <br>
+  <div id="dothings"><button onclick=pick()>Forage</button> in the <select id="locns">
+    <option value="Rat Ruins">Rat Ruins</option>
+    <option value="Ox Plains">Ox Plains</option>
+    <option value="Tiger Forest">Tiger Forest</option>
+    <option value="Rabbit Ridge">Rabbit Ridge</option>
+    <option value="Dragon Lake">Dragon Lake</option>
+    <option value="Snake Shores">Snake Shores</option>
+    <option value="Horse Hills">Horse Hills</option>
+    <option value="Goat Grove">Goat Grove</option>
+    <option value="Monkey Meadow">Monkey Meadow</option>
+    <option value="Rooster Peaks">Rooster Peaks</option>
+    <option value="Dog Valley">Dog Valley</option>
+    <option value="Pig Swamp">Pig Swamp</option>
+</select></div>
+  <br><br>
+  <div id="dataContainer">Day, Time, Location, Food Foraged</div>
+  
+<script id="jsbin-javascript">
+
+day=1
+hour=8
+food=50
+
+
+
+function roll_dX(X){
+ return Math.ceil(Math.random()*X)
+}
+
+ratProp=0
+function rat_food(){ //this diminishes sharply with use
+ ratProp = ratProp+1
+ return 21+roll_dX(4)-ratProp
+}
+
+function ox_food(){ //this is useless, a coin toss where heads isn't worth tails
+ if (roll_dX(2)==2){
+  return 10+roll_dX(8)
+ }
+ else{
+  return 0
+ }
+}
+
+function tiger_food(){ //this is Midnight Friend, only useful at Hour 23.
+ tigeradd=0
+ if (hour==21){
+  tigeradd=2
+ }
+ if (hour==22){
+  tigeradd=5
+ }
+ if (hour==23){
+  tigeradd=18
+ }
+ return tigeradd+roll_dX(4)+roll_dX(4)//averages 5 normally
+}
+
+function rabbit_food(){ //this is useless
+ return Math.max(roll_dX(10), roll_dX(10))
+}
+
+function dragon_food(){ //this is 0 literally all the time
+ return 0
+}
+
+function snake_food(){ //this is useless
+ return Math.min(roll_dX(20), roll_dX(12))
+}
+
+function horse_food(){ //this is Gold Standard, only one which averages 10 over entire game
+ if (roll_dX(4)==4){
+  return 23 + roll_dX(6) + roll_dX(6)+roll_dX(4)
+ }else{
+  return roll_dX(4)
+ }
+}
+
+function goat_food(){ //this is Early Good, slow slide starting day 7 as the Goats eat the Grove. By Day 13 we're at Parity
+ if (day<7){
+  return 10+roll_dX(4)+roll_dX(6)
+ }
+ return 10+roll_dX(4)+roll_dX(6)-(day-7)
+}
+
+function monkey_food(){ //this is useless
+ tot = 0
+ if (roll_dX(6)==6){tot=tot+1}
+ if (roll_dX(6)==6){tot=tot+1}
+ if (roll_dX(6)==6){tot=tot+1}
+ if (roll_dX(6)==6){tot=tot+1}
+ if (roll_dX(6)==6){tot=tot+1}
+ if (roll_dX(6)==6){tot=tot+1}
+ if (roll_dX(6)==6){tot=tot+1}
+ return tot*5
+}
+
+function rooster_food(){ //this is Late Good, the birbs come back from vacay
+ if (day<39){
+  return roll_dX(4)+roll_dX(6)
+ }
+ else{
+  if (roll_dX(6)==1){
+   return 0
+  }
+  else{
+   return 8+roll_dX(8)+roll_dX(4)
+  }
+ }
+}
+
+function dog_food(){ //this is Midday Friend, triangular with a point, only useful at noon
+ if (hour==12){
+  return 8+roll_dX(4)+roll_dX(12)
+ }
+ else{
+  return Math.max(8-Math.abs(12-hour), 0) + roll_dX(4)
+ }
+}
+
+function pig_food(){ //this is useless
+ return 2+roll_dX(8)
+}
+
+
+funcList = {"Rat Ruins": rat_food,
+"Ox Plains": ox_food,
+"Tiger Forest":tiger_food,
+"Rabbit Ridge":rabbit_food,
+"Dragon Lake":dragon_food,
+"Snake Shores":snake_food,
+"Horse Hills":horse_food,
+"Goat Grove":goat_food,
+"Monkey Meadow":monkey_food,
+"Rooster Peaks":rooster_food,
+"Dog Valley":dog_food,
+"Pig Swamp":pig_food
+}
+
+function pick(){
+ loc = document.getElementById('locns').value
+ foodplus = Math.max(funcList[loc](),0)
+ 
+ //record input
+ record = "<br>"+day.toString()+", "+hour.toString()+", "+loc.toString()+", "+foodplus.toString()
+ document.getElementById('dataContainer').innerHTML += record
+ document.getElementById('dataContainer').scrollTop = document.getElementById('dataContainer').scrollHeight
+ //
+ 
+ hour+=1
+ food+=foodplus
+ if (hour>23){
+  hour=8
+  day+=1
+  food-=100
+ }
+ 
+ if (food<1){
+ document.getElementById('dothings').innerHTML="You starved!"
+ }
+ 
+ document.getElementById('Day').innerHTML = "Day: "+day.toString()
+ document.getElementById('Time').innerHTML = "Time: "+hour.toString()+":00"
+ document.getElementById('Food').innerHTML = "Food: "+food.toString()
+ 
+ if (day>60){
+ document.getElementById('dothings').innerHTML = "The Sheriff is en route. Time to go."
+ }
+}
+
+</script>
+</body>
+</html>
