@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,20 +27,21 @@
   <div id="Time">Time: 8:00</div>
   <div id="Food">Food: 50</div>
   <br>
-  <div id="dothings"><button onclick=pick()>Forage</button> in the <select id="locns">
-    <option value="Rat Ruins">Rat Ruins</option>
-    <option value="Ox Plains">Ox Plains</option>
-    <option value="Tiger Forest">Tiger Forest</option>
-    <option value="Rabbit Ridge">Rabbit Ridge</option>
-    <option value="Dragon Lake">Dragon Lake</option>
-    <option value="Snake Shores">Snake Shores</option>
-    <option value="Horse Hills">Horse Hills</option>
-    <option value="Goat Grove">Goat Grove</option>
-    <option value="Monkey Meadow">Monkey Meadow</option>
-    <option value="Rooster Peaks">Rooster Peaks</option>
-    <option value="Dog Valley">Dog Valley</option>
-    <option value="Pig Swamp">Pig Swamp</option>
-</select></div>
+  
+  <div id="dothings">
+  Forage in the
+  <br>
+  <button onclick="forage('Rat Ruins')"  style="width: 150px;">Rat Ruins</button> <button onclick="forage('Ox Plains')" style="width: 150px;">Ox Plains</button> <button onclick="forage('Tiger Forest')" style="width: 150px;">Tiger Forest</button> <button onclick="forage('Bunny Ridge')" style="width: 150px;">Bunny Ridge</button>
+  <br>
+  <button onclick="forage('Dragon Lake')" style="width: 150px;">Dragon Lake</button> <button onclick="forage('Snake Shores')" style="width: 150px;">Snake Shores</button> <button onclick="forage('Horse Hills')" style="width: 150px;">Horse Hills</button> <button onclick="forage('Goat Grove')" style="width: 150px;">Goat Grove</button>
+  <br>
+  <button onclick="forage('Monkey Meadow')" style="width: 150px;">Monkey Meadow</button> <button onclick="forage('Rooster Peaks')" style="width: 150px;">Rooster Peaks</button> <button onclick="forage('Dog Valley')" style="width: 150px;">Dog Valley</button> <button onclick="forage('Pig Swamp')" style="width: 150px;">Pig Swamp</button>
+  <br>
+  for  <select id="locns">
+    <option value="1hr">one hour</option>
+    <option value="10hr">ten hours</option>
+    <option value="ROD">the rest of the day</option>
+  </select></div>.
   <br><br>
   <div id="dataContainer">Day, Time, Location, Food Foraged</div>
   
@@ -49,7 +49,7 @@
 
 day=1
 hour=8
-food=50
+food=60
 
 
 
@@ -72,13 +72,16 @@ function ox_food(){ //this is useless, a coin toss where heads isn't worth tails
  }
 }
 
-function tiger_food(){ //this is Midnight Friend, only useful at Hour 23.
+function tiger_food(){ //this is Midnight Friend, only useful at Hours 22 and 23.
  tigeradd=0
- if (hour==21){
+ if (hour==20){
   tigeradd=2
  }
+ if (hour==21){
+  tigeradd=4
+ }
  if (hour==22){
-  tigeradd=5
+  tigeradd=10
  }
  if (hour==23){
   tigeradd=18
@@ -125,8 +128,8 @@ function monkey_food(){ //this is useless
  return tot*5
 }
 
-function rooster_food(){ //this is Late Good, the birbs come back from vacay
- if (day<39){
+function rooster_food(){ //this is Late Good, the birbs come back from vacay, EV is 14 post that
+ if (day<43){
   return roll_dX(4)+roll_dX(6)
  }
  else{
@@ -134,14 +137,17 @@ function rooster_food(){ //this is Late Good, the birbs come back from vacay
    return 0
   }
   else{
-   return 8+roll_dX(8)+roll_dX(4)
+   return 9+roll_dX(4)+roll_dX(4)
   }
  }
 }
 
-function dog_food(){ //this is Midday Friend, triangular with a point, only useful at noon
+function dog_food(){ //this is Midday Friend, triangular with a point, only useful at noon and 1pm
  if (hour==12){
   return 8+roll_dX(4)+roll_dX(12)
+ }
+ if (hour==13){
+  return 7+roll_dX(4)+roll_dX(12)
  }
  else{
   return Math.max(8-Math.abs(12-hour), 0) + roll_dX(4)
@@ -156,7 +162,7 @@ function pig_food(){ //this is useless
 funcList = {"Rat Ruins": rat_food,
 "Ox Plains": ox_food,
 "Tiger Forest":tiger_food,
-"Rabbit Ridge":rabbit_food,
+"Bunny Ridge":rabbit_food,
 "Dragon Lake":dragon_food,
 "Snake Shores":snake_food,
 "Horse Hills":horse_food,
@@ -167,12 +173,33 @@ funcList = {"Rat Ruins": rat_food,
 "Pig Swamp":pig_food
 }
 
-function pick(){
- loc = document.getElementById('locns').value
- foodplus = Math.max(funcList[loc](),0)
+function forage(locn){
+console.log("sir, I exist!")
+ amt = document.getElementById('locns').value
+ if (amt=="1hr"){
+  pick(locn)
+ }
+ if (amt=="10hr"){
+  pickN(locn, 10)
+ }
+ if (amt=="ROD"){
+  pickN(locn, 24-hour)
+ }
+}
+
+function pickN(locn, N){
+ for (let i = 0; i < N; i++){
+ if (day<61){
+ pick(locn)
+ }
+ }
+}
+
+function pick(locn){
+ foodplus = Math.max(funcList[locn](),0)
  
  //record input
- record = "<br>"+day.toString()+", "+hour.toString()+", "+loc.toString()+", "+foodplus.toString()
+ record = "<br>"+day.toString()+", "+hour.toString()+", "+locn.toString()+", "+foodplus.toString()
  document.getElementById('dataContainer').innerHTML += record
  document.getElementById('dataContainer').scrollTop = document.getElementById('dataContainer').scrollHeight
  //
@@ -193,8 +220,9 @@ function pick(){
  document.getElementById('Time').innerHTML = "Time: "+hour.toString()+":00"
  document.getElementById('Food').innerHTML = "Food: "+food.toString()
  
+ 
  if (day>60){
- document.getElementById('dothings').innerHTML = "The Sheriff is en route. Time to go."
+ document.getElementById('dothings').innerHTML = "The bounty hunters are near. Time to go."
  }
 }
 
