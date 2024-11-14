@@ -20,7 +20,7 @@
 
 <body>
   
-  Your goal is to end Day 60 with as much food stored as possible. Time, and your own actions, may affect the outcome of a forage. You consume 100 food at the end of each day.
+  Your goal is to end Day 60 with as much food stored as possible. Time, and your own actions, may affect the outcome of a forage. You consume 100 food at the end of each day. You will need at least 1000 food stored to have a chance at success, and 3000 to guarantee it.
   <br>
   <br>
   <div id="Day">Day: 1</div>
@@ -128,7 +128,7 @@ function monkey_food(){ //this is useless
  return tot*5
 }
 
-function rooster_food(){ //this is Late Good, the birbs come back from vacay, EV is 14 post that
+function rooster_food(){ //this is Late Good, the birbs come back from vacay, EV is 11.66 post that.
  if (day<43){
   return roll_dX(4)+roll_dX(6)
  }
@@ -174,7 +174,6 @@ funcList = {"Rat Ruins": rat_food,
 }
 
 function forage(locn){
-console.log("sir, I exist!")
  amt = document.getElementById('locns').value
  if (amt=="1hr"){
   pick(locn)
@@ -222,7 +221,23 @@ function pick(locn){
  
  
  if (day>60){
- document.getElementById('dothings').innerHTML = "The bounty hunters are near. Time to go."
+  foodneeded = 1000+Math.random()*2000
+  if (food>foodneeded){
+   document.getElementById('dothings').innerHTML = "You make it safely home and "
+   if (food<2500){
+    document.getElementById('dothings').innerHTML = "resolve never to think about your criminal past again."
+   }
+   if (food>=2500){
+    intensifier = "moderately "
+    if (food>3000){intensifier = ""}
+    if (food>3500){intensifier = "remarkably "}
+    if (food>4000){intensifier = "phenomentally "}
+    document.getElementById('dothings').innerHTML += "write a "+intensifier+" successful series of foraging guides."
+   }
+  }
+  else{
+   document.getElementById('dothings').innerHTML = "Despite your best efforts, you run out of food before making it home."
+  }
  }
 }
 
